@@ -89,10 +89,21 @@
 			let score = 0, mainBalance = 0, gameActive = false, carX = 160, speed = 8;
 
 			function moveUserCar(dir) {
-			if (dir === 'left' && carX > 0) carX -= 15;
-			if (dir === 'right' && carX < 340) carX += 15;
-            userCar.style.left = carX + 'px';
-        }
+			const containerWidth = document.getElementById('gameArea').offsetWidth;
+			const carWidth = 50; // গাড়ির সাইজ
+			const limit = containerWidth - carWidth;
+
+			if (dir === 'left') {
+			carX -= 20;
+			if (carX < 0) carX = 0;
+    }
+    if (dir === 'right') {
+        carX += 20;
+        if (carX > limit) carX = limit;
+    }
+    userCar.style.left = carX + 'px';
+}
+        
 
         function bindButton(id, dir) {
             const btn = document.getElementById(id);
