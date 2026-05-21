@@ -13,7 +13,7 @@
 					}
 
 					body { margin: 0; background: #1a1a1a; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: sans-serif; }
-					#gameContainer { width: 100%; max-width: 400px; height: 100%; display: flex; flex-direction: column; background: #444; position: relative; border: 2px solid #000; }
+					#gameContainer { width: 100%; max-width: 400px; height: 100%; display: flex; flex-direction: column; background: #281F1F; position: relative; border: 2px solid #000; }
 
 					/* Header */
 					#header { height: 60px; background: #000; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: #fff; }
@@ -22,12 +22,12 @@
 					.collect-btn:active { transform: scale(0.95); }
 
 					/* Reward Section */
-					#rewardSection { height: 40px; background: #333; display: flex; justify-content: center; align-items: center; }
+					#rewardSection { height: 40px; background: #281F1F; display: flex; justify-content: center; align-items: center; }
 					.reward-btn { background: #f1c40f; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 12px; border: none; cursor: pointer; }
 					.reward-btn:active { transform: scale(0.95); }
 
 					/* Game Area */
-					#gameArea { flex: 0.9; position: relative; overflow: hidden; background: #333; touch-action: none; }
+					#gameArea { flex: 0.9; position: relative; overflow: hidden; background: #281F1F; touch-action: none; }
 					#liveScore { position: absolute; top: 10px; left: 10px; color: white; font-size: 18px; font-weight: bold; z-index: 10; }
 					.road-line { position: absolute; width: 6px; height: 58px; background: rgba(255,255,255,0.3); left: 50%; animation: moveLines 1s linear infinite; }
 					@keyframes moveLines { from { top: -100px; } to { top: 100%; } }
@@ -59,7 +59,7 @@
 				<button class="collect-btn" onclick="collectPoints()">Collect</button>
 			</div>
 			<div id="rewardSection">
-				<button class="reward-btn">Watch Ad for 2x Reward</button>
+				<button class="reward-btn">Watch and get 2x Reward for 5 minutes</button>
 			</div>
 			<div id="gameArea">
 				<div id="liveScore">Score: 0</div>
@@ -94,11 +94,11 @@
 			const limit = containerWidth - carWidth;
 
 			if (dir === 'left') {
-			carX -= 20;
+			carX -= 10;
 			if (carX < 0) carX = 0;
     }
     if (dir === 'right') {
-        carX += 20;
+        carX += 10;
         if (carX > limit) carX = limit;
     }
     userCar.style.left = carX + 'px';
@@ -159,7 +159,7 @@
         let uR = userCar.getBoundingClientRect(), eR = el.getBoundingClientRect();
         
         // কলিশন লজিক
-        if (eR.bottom > uR.top + 20 && eR.top < uR.bottom - 20 && eR.right > uR.left + 20 && eR.left < uR.right - 20) {
+        if (eR.bottom > uR.top + 15 && eR.top < uR.bottom - 15 && eR.right > uR.left + 15 && eR.left < uR.right - 15) {
             if(type === 'enemy') { 
                 gameActive = false; 
                 document.getElementById('gameOverPopup').style.display = 'flex'; 
