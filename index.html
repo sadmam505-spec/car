@@ -64,7 +64,23 @@
 					.obj { width: 50px; height: 80px; position: absolute; background-size: contain; background-repeat: no-repeat; transition: left 0.05s; }
 					#userCar { background-image: url('user.png'); bottom: 20px; left: 160px; z-index: 10; }
 					.enemy { background-image: url('enime.png'); }
-					.reward { background-image: url('reward.png'); }
+					.reward {
+					background-image: url('reward.png');
+					/* গ্লোয়িং ইফেক্ট শুরু */
+					filter: drop-shadow(0 0 10px rgba(241, 196, 15, 0.8))
+					drop-shadow(0 0 20px rgba(241, 196, 15, 0.6));
+					animation: rewardPulse 1.5s infinite alternate;
+					}
+
+					@keyframes rewardPulse {
+					from {
+					filter: drop-shadow(0 0 5px rgba(241, 196, 15, 0.5));
+					}
+					to {
+					filter: drop-shadow(0 0 15px rgba(241, 196, 15, 1))
+					drop-shadow(0 0 25px rgba(241, 196, 15, 0.8));
+					}
+					}
 
 					.plusOne { position: absolute; color: #2ecc71; font-size: 24px; font-weight: bold; z-index: 20; animation: floatUp 1s ease-out forwards; }
 					@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
@@ -74,9 +90,96 @@
 					.controls button { flex: 1; background: #005411; border: 1.5px solid #000000; color: #25B02E; font-size: 30px; }
 					.controls button:active { background: #097310; }
 
+					#startBtn {
+					padding: 20px 50px;
+					background: linear-gradient(135deg, #2ecc71, #27ae60);
+					color: white;
+					font-size: 15px;
+					font-weight: 900;
+					text-transform: uppercase;
+					letter-spacing: 2px;
+					border: none;
+					border-radius: 50px;
+					cursor: pointer;
+					box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px #2ecc71;
+					transition: all 0.3s ease;
+					text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+					}
+
+					#startBtn:hover {
+					transform: scale(1.05);
+					box-shadow: 0 0 30px #2ecc71;
+					}
+
 					/* Popups */
 					#gameOverPopup, #startScreen, #messagePopup { display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); flex-direction: column; justify-content: center; align-items: center; z-index: 200; color: white; }
+					/* Game Over Popup */
+					#gameOverPopup {
+					display: none; /* শুরুতে লুকানো থাকবে */
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					background: rgba(0, 0, 0, 0.9); /* কালো ব্যাকগ্রাউন্ড */
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					z-index: 200;
+					color: white;
+					}
+
+					#gameOverPopup .game-over-card {
+					background: linear-gradient(135deg, #2c3e50, #000000); /* কালো ও নীল গ্রেডিয়েন্ট */
+					border: 4px solid #e74c3c; /* লাল বর্ডার */
+					border-radius: 20px;
+					padding: 30px;
+					text-align: center;
+					box-shadow: 0 0 30px rgba(231, 76, 60, 0.5); /* গ্লোয়িং লাল শেডো */
+					max-width: 80%;
+					}
+
+					#gameOverPopup h2 {
+					font-size: 32px;
+					font-weight: 900;
+					margin-top: 0;
+					margin-bottom: 10px;
+					color: #e74c3c; /* লাল রং */
+					text-transform: uppercase;
+					text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+					}
+
+					#gameOverPopup .final-score {
+					font-size: 24px;
+					font-weight: bold;
+					color: #f1c40f; /* গোল্ডেন রং */
+					margin-bottom: 20px;
+					text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+					}
+
+					#gameOverPopup .play-again-btn {
+					padding: 15px 40px;
+					background: linear-gradient(135deg, #e74c3c, #c0392b); /* লাল গ্রেডিয়েন্ট */
+					color: white;
+					font-size: 20px;
+					font-weight: bold;
+					text-transform: uppercase;
+					border: none;
+					border-radius: 50px; /* একদম রাউন্ডেড বাটন */
+					cursor: pointer;
+					box-shadow: 0 5px 15px rgba(0,0,0,0.5), 0 0 10px #e74c3c;
+					transition: all 0.3s ease;
+					text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+					}
+
+					#gameOverPopup .play-again-btn:hover {
+					transform: scale(1.05); /* মাউস নিলে একটু বড় হবে */
+					box-shadow: 0 0 20px #e74c3c; /* গ্লো বাড়াবে */
+					}
+
 				</style>
+
+
 			</head>
 	<body>
 		<div id="gameContainer">
@@ -96,11 +199,16 @@
 				<div class="road-line" style="left: 80%;"></div>
 				<div id="userCar" class="obj"></div>
 				<div id="startScreen">
-					<button id="startBtn" style="padding:15px 30px; background:#2ecc71; border:none; color:white; font-size:20px; cursor:pointer;">START GAME</button>
+					<button id="startBtn">START GAME</button>
 				</div>
 				<div id="gameOverPopup" style="display:none;">
-					<h2>GAME OVER</h2>
-					<button onclick="restartGame()" style="padding:15px; border:none; background:#e74c3c; color:white; cursor:pointer;">PLAY AGAIN</button>
+					<div class="game-over-card">
+						<h2>GAME OVER</h2>
+						<p class="final-score">
+							Score: <span id="finalScoreDisplay">0</span>
+						</p>
+						<button class="play-again-btn" onclick="restartGame()">PLAY AGAIN</button>
+					</div>
 				</div>
 				<div id="messagePopup" style="display:none;">
 					<p style="text-align:center; padding:20px;">Minimum 500 points required to claim. Keep playing to collect more points!</p>
@@ -188,25 +296,39 @@
         let uR = userCar.getBoundingClientRect(), eR = el.getBoundingClientRect();
         
         // কলিশন লজিক
-        if (eR.bottom > uR.top + 15 && eR.top < uR.bottom - 15 && eR.right > uR.left + 15 && eR.left < uR.right - 15) {
-            if(type === 'enemy') { 
-                gameActive = false; 
-                document.getElementById('gameOverPopup').style.display = 'flex'; 
-                clearInterval(move); 
-            } else {
-                score++; 
-                document.getElementById('liveScore').innerText = "Score: " + score;
-                let p = document.createElement('div'); 
-                p.className = "plusOne"; 
-                p.innerText = "+1";
-                p.style.left = el.style.left; 
-                p.style.top = el.style.top;
-                gameArea.appendChild(p); 
-                setTimeout(() => p.remove(), 1000);
-                el.remove(); 
-                clearInterval(move);
-            }
+        // কলিশন লজিক
+    if (eR.bottom > uR.top + 15 && eR.top < uR.bottom - 15 && eR.right > uR.left + 15 && eR.left < uR.right - 15) {
+        if(type === 'enemy') { 
+            gameActive = false; 
+            
+            // --- নতুন কোড শুরু ---
+            // ১. স্কোর পপআপে দেখানো
+            document.getElementById('finalScoreDisplay').innerText = score;
+            
+            // ২. ব্যালেন্সে স্কোর যোগ করা
+            mainBalance += score;
+            document.getElementById('mainBalance').innerText = mainBalance;
+            
+            // ৩. গেম ওভার পপআপ দেখানো
+            document.getElementById('gameOverPopup').style.display = 'flex'; 
+            // --- নতুন কোড শেষ ---
+            
+            clearInterval(move); 
+        } else {
+            // ... (আপনার আগের রিওয়ার্ড পাওয়ার কোড যেমন আছে তেমনই থাকবে)
+            score++; 
+            document.getElementById('liveScore').innerText = "Score: " + score;
+            let p = document.createElement('div'); 
+            p.className = "plusOne"; 
+            p.innerText = "+1";
+            p.style.left = el.style.left; 
+            p.style.top = el.style.top;
+            gameArea.appendChild(p); 
+            setTimeout(() => p.remove(), 1000);
+            el.remove(); 
+            clearInterval(move);
         }
+    }
         // স্ক্রিন থেকে বেরিয়ে গেলে রিমুভ
         if(parseInt(el.style.top) > 700) { el.remove(); clearInterval(move); }
     }, 20);
