@@ -50,63 +50,82 @@
 			let carX = 160, score = 0, gameActive = true, moveInterval = null;
 			let speed = 8;
 
-			function startMoving(dir) {
-			if(moveInterval) clearInterval(moveInterval);
-			moveInterval = setInterval(() => {
-			// বাউন্ডারি ফিক্স (০ থেকে ৩২৫)
-			if(dir === 'left' && carX > 0) carX -= 12;
-			if(dir === 'right' && carX < 325) carX += 12;
-                userCar.style.left = carX + 'px';
-            }, 30);
-        }
+			// বাউন্ডারি সেট করা (স্ক্রিন উইডথ - গাড়ির উইডথ)
+			const minX = 0;
+			const maxX = 325;
 
-        document.getElementById('leftBtn').onmousedown = () => startMoving('left');
-        document.getElementById('rightBtn').onmousedown = () => startMoving('right');
-        document.onmouseup = () => clearInterval(moveInterval);
+			function moveUserCar(dir) {
+			if (dir === 'left' && carX > minX) carX -= 15;
+			if (dir === 'right' && carX < maxX) carX += 15;
+        userCar.style.left = carX + 'px';
+    }
 
-        function spawnEnemy() {
-            if(!gameActive) return;
-            let el = document.createElement('div');
-            el.className = 'obj enemy';
-            el.style.left = Math.floor(Math.random() * 320) + 'px';
-            el.style.top = '-80px';
-            gameArea.appendChild(el);
-            moveObject(el, false);
-            setTimeout(spawnEnemy, 1000); // ১ সেকেন্ড পর পর এনমি
-        }
+    // বাটন এবং টাচ কন্ট্রোল
+    function startMoving(dir) {
+        if(moveInterval) clearInterval(moveInterval);
+        moveInterval = setInterval(() => moveUserCar(dir), 30);
+    }
 
-        function spawnReward() {
-            if(!gameActive) return;
-            let el = document.createElement('div');
-            el.className = 'obj reward';
-            el.style.left = Math.floor(Math.random() * 320) + 'px';
-            el.style.top = '-80px';
-            gameArea.appendChild(el);
-            moveObject(el, true);
-            setTimeout(spawnReward, 2500); // ৩ সেকেন্ড পর পর রিওয়ার্ড
-        }
+    document.getElementById('leftBtn').onmousedown = () => startMoving('left');
+    document.getElementById('rightBtn').onmousedown = () => startMoving('right');
+    document.onmouseup = () => clearInterval(moveInterval);
 
-        function moveObject(el, isReward) {
-            let move = setInterval(() => {
-                let top = parseInt(el.style.top);
-                el.style.top = (top + speed) + 'px';
-                let uR = userCar.getBoundingClientRect();
-                let eR = el.getBoundingClientRect();
-                if (eR.bottom > uR.top + 10 && eR.top < uR.bottom - 10 && eR.right > uR.left + 10 && eR.left < uR.right - 10) {
-                    if(!isReward) { gameActive = false; document.getElementById('gameOverPopup').style.display = 'flex'; clearInterval(move); }
-                    else { 
-                        score++; document.getElementById('score').innerText = score;
-                        let plus = document.createElement('div'); plus.className = 'plusOne'; plus.innerText = "+1";
-                        plus.style.left = eR.left + "px"; plus.style.top = eR.top + "px"; gameArea.appendChild(plus);
-                        setTimeout(() => plus.remove(), 1000);
-                        el.remove(); clearInterval(move); 
-                    }
+    // টাচ কন্ট্রোল (পুরো গেম এরিয়াতে)
+    gameArea.addEventListener('touchstart', (e) => {
+        let touchX = e.touches[0].clientX;
+        let screenWidth = window.innerWidth;
+        if (touchX < screenWidth / 2) startMoving('left');
+        else startMoving('right');
+    });
+    gameArea.addEventListener('touchend', () => clearInterval(moveInterval));
+
+    function spawnObject(type) {
+        if(!gameActive) return;
+        let el = document.createElement('div');
+        el.className = 'obj ' + type;
+        
+        // ওভারল্যাপ চেক করার লজিক
+        let randomLeft = Math.floor(Math.random() * 300);
+        let allObjects = document.querySelectorAll('.obj');
+        let isOverlapping = false;
+        
+        allObjects.forEach(obj => {
+            let objLeft = parseInt(obj.style.left);
+            if (Math.abs(objLeft - randomLeft) < 60) isOverlapping = true;
+        });
+
+        if(isOverlapping) { setTimeout(() => spawnObject(type), 100); return; }
+
+        el.style.left = randomLeft + 'px';
+        el.style.top = '-80px';
+        gameArea.appendChild(el);
+        moveObject(el, type === 'reward');
+    }
+
+    function moveObject(el, isReward) {
+        let move = setInterval(() => {
+            let top = parseInt(el.style.top);
+            el.style.top = (top + speed) + 'px';
+            
+            let uR = userCar.getBoundingClientRect();
+            let eR = el.getBoundingClientRect();
+            
+            if (eR.bottom > uR.top && eR.top < uR.bottom && eR.right > uR.left && eR.left < uR.right) {
+                if(!isReward) { gameActive = false; document.getElementById('gameOverPopup').style.display = 'flex'; clearInterval(move); }
+                else { 
+                    score++; document.getElementById('score').innerText = score;
+                    let plus = document.createElement('div'); plus.className = 'plusOne'; plus.innerText = "+1";
+                    plus.style.left = el.style.left; plus.style.top = el.style.top; gameArea.appendChild(plus);
+                    setTimeout(() => plus.remove(), 1000);
+                    el.remove(); clearInterval(move); 
                 }
-                if(top > 700) { el.remove(); clearInterval(move); }
-            }, 20);
-        }
-        spawnEnemy();
-        spawnReward();
+            }
+            if(top > 700) { el.remove(); clearInterval(move); }
+        }, 20);
+    }
+
+    setInterval(() => spawnObject('enemy'), 1000);
+    setInterval(() => spawnObject('reward'), 3000);
 		</script>
 	</body>
 </html>
