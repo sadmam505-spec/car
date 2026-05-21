@@ -8,13 +8,20 @@
 					body { margin: 0; background: #1a1a1a; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: sans-serif; }
 					#gameContainer { width: 100%; max-width: 400px; height: 100%; display: flex; flex-direction: column; background: #444; position: relative; border: 2px solid #000; }
 
-					/* Header & Points */
-					#header { height: 50px; background: #000; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: #fff; }
+					/* Header */
+					#header { height: 60px; background: #000; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: #fff; }
+					.bal-section { font-size: 14px; }
+					.collect-btn { background: #2ecc71; border: 2px solid #27ae60; padding: 6px 15px; color: white; border-radius: 20px; cursor: pointer; }
+					.collect-btn:active { transform: scale(0.95); }
+
+					/* Reward Section */
 					#rewardSection { height: 40px; background: #333; display: flex; justify-content: center; align-items: center; }
-					.reward-btn { background: #f1c40f; padding: 5px 10px; border-radius: 15px; font-weight: bold; font-size: 12px; border: none; cursor: pointer; }
+					.reward-btn { background: #f1c40f; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 12px; border: none; cursor: pointer; }
+					.reward-btn:active { transform: scale(0.95); }
 
 					/* Game Area */
 					#gameArea { flex: 1; position: relative; overflow: hidden; background: #333; touch-action: none; }
+					#liveScore { position: absolute; top: 10px; left: 10px; color: white; font-size: 18px; font-weight: bold; z-index: 10; }
 					.road-line { position: absolute; width: 6px; height: 50px; background: rgba(255,255,255,0.3); left: 50%; animation: moveLines 1s linear infinite; }
 					@keyframes moveLines { from { top: -100px; } to { top: 100%; } }
 
@@ -26,24 +33,29 @@
 					.plusOne { position: absolute; color: #2ecc71; font-size: 24px; font-weight: bold; z-index: 20; animation: floatUp 1s ease-out forwards; }
 					@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
 
-					.controls { height: 80px; display: flex; background: #000; padding-bottom: env(safe-area-inset-bottom); }
+					/* Controls */
+					.controls { height: 100px; display: flex; background: #000; padding-bottom: env(safe-area-inset-bottom); padding-top: 10px; }
 					.controls button { flex: 1; background: #222; border: 1px solid #444; color: white; font-size: 30px; }
-					#gameOverPopup, #startScreen { display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); flex-direction: column; justify-content: center; align-items: center; z-index: 200; color: white; }
+					.controls button:active { background: #444; }
+
+					/* Popups */
+					#gameOverPopup, #startScreen, #messagePopup { display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); flex-direction: column; justify-content: center; align-items: center; z-index: 200; color: white; }
 				</style>
 			</head>
 	<body>
 		<div id="gameContainer">
 			<div id="header">
-				<div>🏠 Home</div>
-				<div>
-					💰 Score: <span id="score">0</span>
+				<div style="cursor:pointer">🏠 Home</div>
+				<div class="bal-section">
+					Bal: <span id="mainBalance">0</span>
 				</div>
-				<div style="background:red; padding:4px 8px;">Claim</div>
+				<button class="collect-btn" onclick="collectPoints()">Collect</button>
 			</div>
 			<div id="rewardSection">
 				<button class="reward-btn">Watch Ad for 2x Reward</button>
 			</div>
 			<div id="gameArea">
+				<div id="liveScore">Score: 0</div>
 				<div class="road-line" style="left: 20%;"></div>
 				<div class="road-line" style="left: 80%;"></div>
 				<div id="userCar" class="obj"></div>
@@ -52,7 +64,11 @@
 				</div>
 				<div id="gameOverPopup" style="display:none;">
 					<h2>GAME OVER</h2>
-					<button onclick="location.reload()" style="padding:15px; border:none; background:#e74c3c; color:white; cursor:pointer;">PLAY AGAIN</button>
+					<button onclick="restartGame()" style="padding:15px; border:none; background:#e74c3c; color:white; cursor:pointer;">PLAY AGAIN</button>
+				</div>
+				<div id="messagePopup" style="display:none;">
+					<p style="text-align:center; padding:20px;">Minimum 500 points required to claim. Keep playing to collect more points!</p>
+					<button onclick="document.getElementById('messagePopup').style.display='none'">X</button>
 				</div>
 			</div>
 			<div class="controls">
@@ -62,8 +78,8 @@
 		</div>
 
 		<script>
-			let userCar = document.getElementById('userCar'), gameArea = document.getElementById('gameArea'), score = 0, gameActive = false;
-			let carX = 160, speed = 8;
+			let userCar = document.getElementById('userCar'), gameArea = document.getElementById('gameArea');
+			let score = 0, mainBalance = 0, gameActive = false, carX = 160, speed = 8;
 
 			function moveUserCar(dir) {
 			if (dir === 'left' && carX > 0) carX -= 15;
@@ -76,10 +92,17 @@
             let interval;
             btn.addEventListener('touchstart', (e) => { e.preventDefault(); interval = setInterval(() => moveUserCar(dir), 30); });
             btn.addEventListener('touchend', () => clearInterval(interval));
-            btn.addEventListener('mousedown', (e) => { interval = setInterval(() => moveUserCar(dir), 30); });
+            btn.addEventListener('mousedown', () => { interval = setInterval(() => moveUserCar(dir), 30); });
             btn.addEventListener('mouseup', () => clearInterval(interval));
         }
         bindButton('leftBtn', 'left'); bindButton('rightBtn', 'right');
+
+        function collectPoints() {
+            if (score < 500) { document.getElementById('messagePopup').style.display = 'flex'; }
+            else { mainBalance += score; score = 0; document.getElementById('mainBalance').innerText = mainBalance; document.getElementById('liveScore').innerText = "Score: 0"; }
+        }
+
+        function restartGame() { location.reload(); }
 
         document.getElementById('startBtn').addEventListener('click', () => {
             document.getElementById('startScreen').style.display = 'none';
@@ -89,30 +112,17 @@
         });
 
         function spawnObject(type) {
-            let el = document.createElement('div'), attempts = 0, isOverlapping, x;
-            do {
-                isOverlapping = false;
-                x = Math.floor(Math.random() * 300);
-                document.querySelectorAll('.obj').forEach(o => {
-                    if (Math.abs(parseInt(o.style.left) - x) < 60 && parseInt(o.style.top) < 150) isOverlapping = true;
-                });
-                attempts++;
-            } while (isOverlapping && attempts < 10);
-
-            el.className = 'obj ' + type;
-            el.style.left = x + 'px';
-            el.style.top = '-80px';
+            let el = document.createElement('div'), x = Math.floor(Math.random() * 300);
+            el.className = 'obj ' + type; el.style.left = x + 'px'; el.style.top = '-80px';
             gameArea.appendChild(el);
-
             let move = setInterval(() => {
                 if(!gameActive) { clearInterval(move); el.remove(); return; }
                 el.style.top = (parseInt(el.style.top) + speed) + 'px';
                 let uR = userCar.getBoundingClientRect(), eR = el.getBoundingClientRect();
-                
                 if (eR.bottom > uR.top + 20 && eR.top < uR.bottom - 20 && eR.right > uR.left + 20 && eR.left < uR.right - 20) {
                     if(type === 'enemy') { gameActive = false; document.getElementById('gameOverPopup').style.display = 'flex'; clearInterval(move); }
                     else {
-                        score++; document.getElementById('score').innerText = score;
+                        score++; document.getElementById('liveScore').innerText = "Score: " + score;
                         let p = document.createElement('div'); p.className = "plusOne"; p.innerText = "+1";
                         p.style.left = el.style.left; p.style.top = el.style.top;
                         gameArea.appendChild(p); setTimeout(() => p.remove(), 1000);
