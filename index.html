@@ -56,6 +56,11 @@
 					}
 
 					/* Game Area */
+					{
+					position: relative; /* এটি খুবই গুরুত্বপূর্ণ, যাতে টাইমারটি গেম এরিয়ার ভেতরে থাকে */
+					overflow: hidden;   /* যাতে গেমের বাইরে কিছু না যায় */
+					/* আপনার অন্যান্য প্রপার্টি এখানে থাকবে */
+					}
 					#gameArea { flex: 0.90; position: relative; overflow: hidden; background: #281F1F; touch-action: none; }
 					#liveScore { position: absolute; top: 10px; left: 15px; color: white; font-size: 18px; font-weight: bold; z-index: 10; }
 					.road-line { position: absolute; width: 6px; height: 55px; background: rgba(255,255,255,0.3); left: 50%; animation: moveLines 1s linear infinite; }
@@ -177,6 +182,26 @@
 					box-shadow: 0 0 20px #e74c3c; /* গ্লো বাড়াবে */
 					}
 
+					#timerDisplay {
+					position: absolute;
+					top: 10px;
+					right: 15px; /* ডান দিকে রাখার জন্য */
+					color: red;
+					font-weight: 900;
+					font-size: 11px;
+					background: black;
+					padding: 5px 10px;
+					border-radius: 8px;
+					border: 2px solid red;
+					z-index: 1000;
+					box-shadow: 0 0 10px red;
+					}
+
+					@keyframes blink {
+					from { opacity: 0.7; }
+					to { opacity: 1; }
+					}
+
 				</style>
 
 
@@ -184,9 +209,9 @@
 	<body>
 		<div id="gameContainer">
 			<div id="header">
-				<div style="cursor:pointer">🏠 Home</div>
+				<div style="cursor:pointer">🏠</div>
 				<div class="bal-section">
-					Bal: <span id="mainBalance">0</span>
+					Balance: <span id="mainBalance">0</span>
 				</div>
 				<button class="collect-btn" onclick="collectPoints()">Collect</button>
 			</div>
@@ -195,6 +220,12 @@
 			</div>
 			<div id="gameArea">
 				<div id="liveScore">Score: 0</div>
+
+					<div id="timerDisplay" style="display:block;">05:00</div>
+
+					<div class="road-line" style="left: 20%;"></div>
+				
+				
 				<div class="road-line" style="left: 20%;"></div>
 				<div class="road-line" style="left: 80%;"></div>
 				<div id="userCar" class="obj"></div>
