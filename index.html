@@ -4,44 +4,18 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 			<title>Pro Racing Game</title>
 			<style>
-				body { margin: 0; background: #333; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-
-				#gameContainer {
-				width: 100%;
-				max-width: 375px;
-				height: 100vh;
-				display: flex;
-				flex-direction: column;
-				background: #444;
-				position: relative;
-				border: 2px solid #000;
-				}
-
-				#gameArea {
-				flex: 1; /* বাটন বাদে বাকি সব জায়গা দখল করবে */
-				position: relative;
-				overflow: hidden;
-				background: #333;
-				}
-
-				/* বাটন এরিয়ার উচ্চতা ফিক্স করা */
-				.controls { height: 60px; display: flex; background: #000; }
-				.controls button { flex: 1; border: none; background: #222; color: white; font-size: 20px; }
-
-				.road-line { position: absolute; width: 8px; height: 80px; background: white; left: 50%; margin-left: -5px; animation: moveLines .8s linear infinite; }
-				@keyframes moveLines { from { top: -100px; } to { top: 100%; } }
-
+				body { margin: 0; background: #333; display: flex; justify-content: center; height: 100vh; overflow: hidden; touch-action: none; }
+				#gameContainer { width: 100%; max-width: 375px; height: 100vh; display: flex; flex-direction: column; background: #444; position: relative; border: 2px solid #000; }
+				#gameArea { flex: 1; position: relative; overflow: hidden; background: #333; }
+				.controls { height: 70px; display: flex; background: #000; z-index: 50; }
+				.controls button { flex: 1; border: 1px solid #444; background: #222; color: white; font-size: 24px; }
 				.obj { width: 50px; height: 80px; position: absolute; background-size: contain; background-repeat: no-repeat; transition: left 0.05s; }
 				#userCar { background-image: url('user.png'); bottom: 20px; left: 160px; z-index: 10; }
 				.enemy { background-image: url('enime.png'); }
 				.reward { background-image: url('reward.png'); filter: drop-shadow(0 0 10px yellow); }
-
-				.plusOne { position: absolute; color: #2ecc71; font-size: 24px; font-weight: bold; pointer-events: none; animation: floatUp 1s ease-out forwards; }
-				@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
-
-				#gameOverPopup { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); flex-direction: column; justify-content: center; align-items: center; z-index: 30; color: white; }
-				.btn { padding: 15px 30px; background: #e74c3c; color: white; border: none; cursor: pointer; border-radius: 5px; }
-				#scoreBoard { color: white; text-align: center; padding: 10px; font-size: 20px; font-weight: bold; }
+				#gameOverPopup, #startScreen { display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); flex-direction: column; justify-content: center; align-items: center; z-index: 100; color: white; }
+				.btn { padding: 15px 30px; background: #e74c3c; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 18px; }
+				#scoreBoard { color: white; text-align: center; padding: 10px; font-size: 20px; font-weight: bold; background: #000; }
 			</style>
 		</head>
 	<body>
@@ -50,11 +24,12 @@
 				Score: <span id="score">0</span>
 			</div>
 			<div id="gameArea">
-				<div class="road-line" style="top:0;"></div>
-				<div class="road-line" style="top:200px;"></div>
-				<div class="road-line" style="top:400px;"></div>
 				<div id="userCar" class="obj"></div>
-				<div id="gameOverPopup">
+				<div id="startScreen">
+					<h2>READY?</h2>
+					<button class="btn" id="startBtn" style="background: #2ecc71;">START GAME</button>
+				</div>
+				<div id="gameOverPopup" style="display: none;">
 					<h2>GAME OVER</h2>
 					<button class="btn" onclick="location.reload()">PLAY AGAIN</button>
 				</div>
@@ -67,75 +42,66 @@
 
 		<script>
 			let userCar = document.getElementById('userCar'), gameArea = document.getElementById('gameArea');
-			let carX = 160, score = 0, gameActive = true, moveInterval = null;
-			let speed = 8;
-			const minX = 0, maxX = 325;
+			let carX = 160, score = 0, gameActive = false, moveInterval = null, speed = 8;
 
 			function moveUserCar(dir) {
-			if (dir === 'left' && carX > minX) carX -= 15;
-			if (dir === 'right' && carX < maxX) carX += 15;
+			if (dir === 'left' && carX > 0) carX -= 15;
+			if (dir === 'right' && carX < 325) carX += 15;
             userCar.style.left = carX + 'px';
         }
 
-        function startMoving(dir) {
-            if(moveInterval) clearInterval(moveInterval);
-            moveInterval = setInterval(() => moveUserCar(dir), 30);
+        function setupButton(btnId, dir) {
+            const btn = document.getElementById(btnId);
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); moveInterval = setInterval(() => moveUserCar(dir), 30); });
+            btn.addEventListener('touchend', () => clearInterval(moveInterval));
+            btn.onmousedown = () => moveInterval = setInterval(() => moveUserCar(dir), 30);
+            btn.onmouseup = () => clearInterval(moveInterval);
         }
 
-        document.getElementById('leftBtn').onmousedown = () => startMoving('left');
-        document.getElementById('rightBtn').onmousedown = () => startMoving('right');
-        document.onmouseup = () => clearInterval(moveInterval);
+        setupButton('leftBtn', 'left');
+        setupButton('rightBtn', 'right');
 
-        // টাচ কন্ট্রোল ল্যাগ ফিক্সড
-        gameArea.addEventListener('touchstart', (e) => {
-            e.preventDefault(); 
-            let touchX = e.touches[0].clientX;
-            let screenWidth = window.innerWidth;
-            if (touchX < screenWidth / 2) startMoving('left');
-            else startMoving('right');
-        }, {passive: false});
-        
-        gameArea.addEventListener('touchend', () => clearInterval(moveInterval));
+        document.getElementById('startBtn').addEventListener('click', () => {
+            document.getElementById('startScreen').style.display = 'none';
+            gameActive = true;
+            // Enemy লুপ
+            setInterval(() => { if(gameActive) spawnObject('enemy'); }, 1000);
+            // Reward লুপ
+            setInterval(() => { if(gameActive) spawnObject('reward'); }, 2500);
+        });
 
         function spawnObject(type) {
-            if(!gameActive) return;
             let el = document.createElement('div');
-            el.className = 'obj ' + type;        
-            let randomLeft = Math.floor(Math.random() * 300);
-            let allObjects = document.querySelectorAll('.obj');
-            let isOverlapping = false;        
-            allObjects.forEach(obj => {
-                let objLeft = parseInt(obj.style.left);
-                if (Math.abs(objLeft - randomLeft) < 60) isOverlapping = true;
-            });
-            if(isOverlapping) { setTimeout(() => spawnObject(type), 100); return; }
+            el.className = 'obj ' + type;
+            
+            let randomLeft, isOverlapping, attempts = 0;
+            do {
+                isOverlapping = false;
+                randomLeft = Math.floor(Math.random() * 300);
+                document.querySelectorAll('.obj').forEach(obj => {
+                    if (Math.abs(parseInt(obj.style.left) - randomLeft) < 70 && parseInt(obj.style.top) < 150) isOverlapping = true;
+                });
+                attempts++;
+            } while (isOverlapping && attempts < 10);
+
             el.style.left = randomLeft + 'px';
             el.style.top = '-80px';
             gameArea.appendChild(el);
-            moveObject(el, type === 'reward');
-        }
-
-        function moveObject(el, isReward) {
+            
             let move = setInterval(() => {
+                if(!gameActive) { clearInterval(move); el.remove(); return; }
                 let top = parseInt(el.style.top);
-                el.style.top = (top + speed) + 'px';            
+                el.style.top = (top + speed) + 'px';
+                
                 let uR = userCar.getBoundingClientRect();
-                let eR = el.getBoundingClientRect();            
+                let eR = el.getBoundingClientRect();
                 if (eR.bottom > uR.top && eR.top < uR.bottom && eR.right > uR.left && eR.left < uR.right) {
-                    if(!isReward) { gameActive = false; document.getElementById('gameOverPopup').style.display = 'flex'; clearInterval(move); }
-                    else { 
-                        score++; document.getElementById('score').innerText = score;
-                        let plus = document.createElement('div'); plus.className = 'plusOne'; plus.innerText = "+1";
-                        plus.style.left = el.style.left; plus.style.top = el.style.top; gameArea.appendChild(plus);
-                        setTimeout(() => plus.remove(), 1000);
-                        el.remove(); clearInterval(move); 
-                    }
+                    if(type === 'enemy') { gameActive = false; document.getElementById('gameOverPopup').style.display = 'flex'; clearInterval(move); }
+                    else { score++; document.getElementById('score').innerText = score; el.remove(); clearInterval(move); }
                 }
                 if(top > 700) { el.remove(); clearInterval(move); }
             }, 20);
         }
-        setInterval(() => spawnObject('enemy'), 1000);
-        setInterval(() => spawnObject('reward'), 3000);
 		</script>
 	</body>
 </html>
