@@ -5,6 +5,13 @@
 			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 				<title>Pro Racing Game</title>
 				<style>
+					/* এটি সব বাটন এবং ক্লিকযোগ্য এলিমেন্টের হাইলাইট কালার বন্ধ করবে */
+					button, div {
+					-webkit-tap-highlight-color: transparent;
+					-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+					outline: none;
+					}
+
 					body { margin: 0; background: #1a1a1a; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: sans-serif; }
 					#gameContainer { width: 100%; max-width: 400px; height: 100%; display: flex; flex-direction: column; background: #444; position: relative; border: 2px solid #000; }
 
@@ -20,9 +27,9 @@
 					.reward-btn:active { transform: scale(0.95); }
 
 					/* Game Area */
-					#gameArea { flex: 1; position: relative; overflow: hidden; background: #333; touch-action: none; }
+					#gameArea { flex: 0.9; position: relative; overflow: hidden; background: #333; touch-action: none; }
 					#liveScore { position: absolute; top: 10px; left: 10px; color: white; font-size: 18px; font-weight: bold; z-index: 10; }
-					.road-line { position: absolute; width: 6px; height: 50px; background: rgba(255,255,255,0.3); left: 50%; animation: moveLines 1s linear infinite; }
+					.road-line { position: absolute; width: 6px; height: 58px; background: rgba(255,255,255,0.3); left: 50%; animation: moveLines 1s linear infinite; }
 					@keyframes moveLines { from { top: -100px; } to { top: 100%; } }
 
 					.obj { width: 50px; height: 80px; position: absolute; background-size: contain; background-repeat: no-repeat; transition: left 0.05s; }
