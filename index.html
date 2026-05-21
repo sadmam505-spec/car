@@ -1,52 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-			<title>Pro Racing Game</title>
-			<style>
-				body { margin: 0; background: #333; display: flex; justify-content: center; height: 100vh; overflow: hidden; touch-action: none; }
-				#gameContainer { width: 100%; max-width: 375px; height: 100vh; display: flex; flex-direction: column; background: #444; position: relative; border: 2px solid #000; }
+		<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+				<title>Pro Racing Game</title>
+				<style>
+					body { margin: 0; background: #1a1a1a; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: sans-serif; }
+					#gameContainer { width: 100%; max-width: 400px; height: 100%; display: flex; flex-direction: column; background: #444; position: relative; border: 2px solid #000; }
 
-				#gameArea { flex: 1; position: relative; overflow: hidden; background: #333; }
+					/* Header & Points */
+					#header { height: 50px; background: #000; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: #fff; }
+					#rewardSection { height: 40px; background: #333; display: flex; justify-content: center; align-items: center; }
+					.reward-btn { background: #f1c40f; padding: 5px 10px; border-radius: 15px; font-weight: bold; font-size: 12px; border: none; cursor: pointer; }
 
-				/* রোড এনিমেশন ফিরিয়ে আনা হলো */
-				.road-line { position: absolute; width: 8px; height: 80px; background: white; left: 50%; margin-left: -5px; animation: moveLines .8s linear infinite; }
-				@keyframes moveLines { from { top: -100px; } to { top: 100%; } }
+					/* Game Area */
+					#gameArea { flex: 1; position: relative; overflow: hidden; background: #333; touch-action: none; }
+					.road-line { position: absolute; width: 6px; height: 50px; background: rgba(255,255,255,0.3); left: 50%; animation: moveLines 1s linear infinite; }
+					@keyframes moveLines { from { top: -100px; } to { top: 100%; } }
 
-				.controls { height: 70px; display: flex; background: #000; z-index: 50; }
-				.controls button { flex: 1; border: 1px solid #444; background: #222; color: white; font-size: 24px; touch-action: manipulation; }
+					.obj { width: 50px; height: 80px; position: absolute; background-size: contain; background-repeat: no-repeat; transition: left 0.05s; }
+					#userCar { background-image: url('user.png'); bottom: 20px; left: 160px; z-index: 10; }
+					.enemy { background-image: url('enime.png'); }
+					.reward { background-image: url('reward.png'); }
 
-				.obj { width: 50px; height: 80px; position: absolute; background-size: contain; background-repeat: no-repeat; transition: left 0.05s; }
-				#userCar { background-image: url('user.png'); bottom: 20px; left: 160px; z-index: 10; }
-				.enemy { background-image: url('enime.png'); }
-				.reward { background-image: url('reward.png'); filter: drop-shadow(0 0 10px yellow); }
+					.plusOne { position: absolute; color: #2ecc71; font-size: 24px; font-weight: bold; z-index: 20; animation: floatUp 1s ease-out forwards; }
+					@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
 
-				.plusOne { position: absolute; color: #2ecc71; font-size: 24px; font-weight: bold; pointer-events: none; z-index: 20; }
-				@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
-
-				#gameOverPopup, #startScreen { display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); flex-direction: column; justify-content: center; align-items: center; z-index: 100; color: white; }
-				.btn { padding: 15px 30px; background: #e74c3c; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 18px; }
-				#scoreBoard { color: white; text-align: center; padding: 10px; font-size: 20px; font-weight: bold; background: #000; }
-			</style>
-		</head>
+					.controls { height: 80px; display: flex; background: #000; padding-bottom: env(safe-area-inset-bottom); }
+					.controls button { flex: 1; background: #222; border: 1px solid #444; color: white; font-size: 30px; }
+					#gameOverPopup, #startScreen { display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); flex-direction: column; justify-content: center; align-items: center; z-index: 200; color: white; }
+				</style>
+			</head>
 	<body>
 		<div id="gameContainer">
-			<div id="scoreBoard">
-				Score: <span id="score">0</span>
+			<div id="header">
+				<div>🏠 Home</div>
+				<div>
+					💰 Score: <span id="score">0</span>
+				</div>
+				<div style="background:red; padding:4px 8px;">Claim</div>
+			</div>
+			<div id="rewardSection">
+				<button class="reward-btn">Watch Ad for 2x Reward</button>
 			</div>
 			<div id="gameArea">
-				<div class="road-line" style="top:0; left:25%;"></div>
-				<div class="road-line" style="top:250px; left:75%;"></div>
-
+				<div class="road-line" style="left: 20%;"></div>
+				<div class="road-line" style="left: 80%;"></div>
 				<div id="userCar" class="obj"></div>
-
 				<div id="startScreen">
-					<h2>READY?</h2>
-					<button class="btn" id="startBtn" style="background: #2ecc71;">START GAME</button>
+					<button id="startBtn" style="padding:15px 30px; background:#2ecc71; border:none; color:white; font-size:20px; cursor:pointer;">START GAME</button>
 				</div>
-				<div id="gameOverPopup" style="display: none;">
+				<div id="gameOverPopup" style="display:none;">
 					<h2>GAME OVER</h2>
-					<button class="btn" onclick="location.reload()">PLAY AGAIN</button>
+					<button onclick="location.reload()" style="padding:15px; border:none; background:#e74c3c; color:white; cursor:pointer;">PLAY AGAIN</button>
 				</div>
 			</div>
 			<div class="controls">
@@ -56,25 +62,24 @@
 		</div>
 
 		<script>
-			let userCar = document.getElementById('userCar'), gameArea = document.getElementById('gameArea');
-			let carX = 160, score = 0, gameActive = false, moveInterval = null, speed = 8;
+			let userCar = document.getElementById('userCar'), gameArea = document.getElementById('gameArea'), score = 0, gameActive = false;
+			let carX = 160, speed = 8;
 
 			function moveUserCar(dir) {
 			if (dir === 'left' && carX > 0) carX -= 15;
-			if (dir === 'right' && carX < 325) carX += 15;
+			if (dir === 'right' && carX < 340) carX += 15;
             userCar.style.left = carX + 'px';
         }
 
-        // টাচ কন্ট্রোল ফিক্স: শুধুমাত্র বাটনে ক্লিক করলেই মুভ করবে, গেম এরিয়ায় টাচ করলে না
-        function setupButton(btnId, dir) {
-            const btn = document.getElementById(btnId);
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); moveInterval = setInterval(() => moveUserCar(dir), 30); });
-            btn.addEventListener('touchend', () => clearInterval(moveInterval));
-            btn.onmousedown = () => moveInterval = setInterval(() => moveUserCar(dir), 30);
-            btn.onmouseup = () => clearInterval(moveInterval);
+        function bindButton(id, dir) {
+            const btn = document.getElementById(id);
+            let interval;
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); interval = setInterval(() => moveUserCar(dir), 30); });
+            btn.addEventListener('touchend', () => clearInterval(interval));
+            btn.addEventListener('mousedown', (e) => { interval = setInterval(() => moveUserCar(dir), 30); });
+            btn.addEventListener('mouseup', () => clearInterval(interval));
         }
-        setupButton('leftBtn', 'left');
-        setupButton('rightBtn', 'right');
+        bindButton('leftBtn', 'left'); bindButton('rightBtn', 'right');
 
         document.getElementById('startBtn').addEventListener('click', () => {
             document.getElementById('startScreen').style.display = 'none';
@@ -84,52 +89,37 @@
         });
 
         function spawnObject(type) {
-            let el = document.createElement('div');
-            el.className = 'obj ' + type;
-            let randomLeft, isOverlapping, attempts = 0;
+            let el = document.createElement('div'), attempts = 0, isOverlapping, x;
             do {
                 isOverlapping = false;
-                randomLeft = Math.floor(Math.random() * 300);
-                document.querySelectorAll('.obj').forEach(obj => {
-                    if (obj !== el && Math.abs(parseInt(obj.style.left) - randomLeft) < 70 && parseInt(obj.style.top) < 150) isOverlapping = true;
+                x = Math.floor(Math.random() * 300);
+                document.querySelectorAll('.obj').forEach(o => {
+                    if (Math.abs(parseInt(o.style.left) - x) < 60 && parseInt(o.style.top) < 150) isOverlapping = true;
                 });
                 attempts++;
             } while (isOverlapping && attempts < 10);
 
-            el.style.left = randomLeft + 'px';
+            el.className = 'obj ' + type;
+            el.style.left = x + 'px';
             el.style.top = '-80px';
-            gameArea.appendChild(el);        
-            
+            gameArea.appendChild(el);
+
             let move = setInterval(() => {
                 if(!gameActive) { clearInterval(move); el.remove(); return; }
-                let top = parseInt(el.style.top);
-                el.style.top = (top + speed) + 'px';            
-                let uR = userCar.getBoundingClientRect();
-                let eR = el.getBoundingClientRect();
-
-                if (eR.bottom > uR.top + 15 && eR.top < uR.bottom - 15 && eR.right > uR.left + 15 && eR.left < uR.right - 15) {
-                    if(type === 'enemy') { 
-                        gameActive = false; 
-                        document.getElementById('gameOverPopup').style.display = 'flex'; 
-                        clearInterval(move); 
-                    } else { 
-                        score++; 
-                        document.getElementById('score').innerText = score; 
-                        
-                        let plus = document.createElement('div');
-                        plus.className = "plusOne";
-                        plus.innerText = "+1";
-                        plus.style.left = el.style.left;
-                        plus.style.top = el.style.top;
-                        plus.style.animation = "floatUp 1s ease-out forwards";
-                        gameArea.appendChild(plus);
-                        setTimeout(() => plus.remove(), 1000);
-
-                        el.remove(); 
-                        clearInterval(move); 
+                el.style.top = (parseInt(el.style.top) + speed) + 'px';
+                let uR = userCar.getBoundingClientRect(), eR = el.getBoundingClientRect();
+                
+                if (eR.bottom > uR.top + 20 && eR.top < uR.bottom - 20 && eR.right > uR.left + 20 && eR.left < uR.right - 20) {
+                    if(type === 'enemy') { gameActive = false; document.getElementById('gameOverPopup').style.display = 'flex'; clearInterval(move); }
+                    else {
+                        score++; document.getElementById('score').innerText = score;
+                        let p = document.createElement('div'); p.className = "plusOne"; p.innerText = "+1";
+                        p.style.left = el.style.left; p.style.top = el.style.top;
+                        gameArea.appendChild(p); setTimeout(() => p.remove(), 1000);
+                        el.remove(); clearInterval(move);
                     }
                 }
-                if(top > 700) { el.remove(); clearInterval(move); }
+                if(parseInt(el.style.top) > 700) { el.remove(); clearInterval(move); }
             }, 20);
         }
 		</script>
