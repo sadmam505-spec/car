@@ -68,7 +68,7 @@
 				</div>
 				<div id="messagePopup" style="display:none;">
 					<p style="text-align:center; padding:20px;">Minimum 500 points required to claim. Keep playing to collect more points!</p>
-					<button onclick="document.getElementById('messagePopup').style.display='none'">X</button>
+					<button onclick="document.getElementById('messagePopup').style.display='none'">OK</button>
 				</div>
 			</div>
 			<div class="controls">
@@ -111,27 +111,59 @@
             setInterval(() => { if(gameActive) spawnObject('reward'); }, 2500);
         });
 
-        function spawnObject(type) {
-            let el = document.createElement('div'), x = Math.floor(Math.random() * 300);
-            el.className = 'obj ' + type; el.style.left = x + 'px'; el.style.top = '-80px';
-            gameArea.appendChild(el);
-            let move = setInterval(() => {
-                if(!gameActive) { clearInterval(move); el.remove(); return; }
-                el.style.top = (parseInt(el.style.top) + speed) + 'px';
-                let uR = userCar.getBoundingClientRect(), eR = el.getBoundingClientRect();
-                if (eR.bottom > uR.top + 20 && eR.top < uR.bottom - 20 && eR.right > uR.left + 20 && eR.left < uR.right - 20) {
-                    if(type === 'enemy') { gameActive = false; document.getElementById('gameOverPopup').style.display = 'flex'; clearInterval(move); }
-                    else {
-                        score++; document.getElementById('liveScore').innerText = "Score: " + score;
-                        let p = document.createElement('div'); p.className = "plusOne"; p.innerText = "+1";
-                        p.style.left = el.style.left; p.style.top = el.style.top;
-                        gameArea.appendChild(p); setTimeout(() => p.remove(), 1000);
-                        el.remove(); clearInterval(move);
-                    }
-                }
-                if(parseInt(el.style.top) > 700) { el.remove(); clearInterval(move); }
-            }, 20);
+      function spawnObject(type) {
+    let el = document.createElement('div'), attempts = 0, isOverlapping, x;
+    
+    // স্পনিং লুপ: গাড়ি যাতে ওভারল্যাপ না করে
+    do {
+        isOverlapping = false;
+        x = Math.floor(Math.random() * 320); 
+        document.querySelectorAll('.obj').forEach(o => {
+            if (o !== el && Math.abs(parseInt(o.style.left) - x) < 65 && parseInt(o.style.top) < 180) {
+                isOverlapping = true;
+            }
+        });
+        attempts++;
+    } while (isOverlapping && attempts < 15);
+
+    // যদি ১৫ বার চেষ্টার পরও ফাঁকা জায়গা না পায়, তবে গাড়িটি আর তৈরি হবে না
+    if (isOverlapping) return;
+
+    el.className = 'obj ' + type;
+    el.style.left = x + 'px';
+    el.style.top = '-80px';
+    gameArea.appendChild(el);
+
+    let move = setInterval(() => {
+        if(!gameActive) { clearInterval(move); el.remove(); return; }
+        el.style.top = (parseInt(el.style.top) + speed) + 'px';
+        
+        let uR = userCar.getBoundingClientRect(), eR = el.getBoundingClientRect();
+        
+        // কলিশন লজিক
+        if (eR.bottom > uR.top + 20 && eR.top < uR.bottom - 20 && eR.right > uR.left + 20 && eR.left < uR.right - 20) {
+            if(type === 'enemy') { 
+                gameActive = false; 
+                document.getElementById('gameOverPopup').style.display = 'flex'; 
+                clearInterval(move); 
+            } else {
+                score++; 
+                document.getElementById('liveScore').innerText = "Score: " + score;
+                let p = document.createElement('div'); 
+                p.className = "plusOne"; 
+                p.innerText = "+1";
+                p.style.left = el.style.left; 
+                p.style.top = el.style.top;
+                gameArea.appendChild(p); 
+                setTimeout(() => p.remove(), 1000);
+                el.remove(); 
+                clearInterval(move);
+            }
         }
+        // স্ক্রিন থেকে বেরিয়ে গেলে রিমুভ
+        if(parseInt(el.style.top) > 700) { el.remove(); clearInterval(move); }
+    }, 20);
+}
 		</script>
 	</body>
 </html>
