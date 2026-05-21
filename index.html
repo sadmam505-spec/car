@@ -8,11 +8,16 @@
 				#gameContainer { width: 100%; max-width: 375px; height: 100vh; display: flex; flex-direction: column; background: #444; position: relative; border: 2px solid #000; }
 				#gameArea { flex: 1; position: relative; overflow: hidden; background: #333; }
 				.controls { height: 70px; display: flex; background: #000; z-index: 50; }
-				.controls button { flex: 1; border: 1px solid #444; background: #222; color: white; font-size: 24px; }
+				.controls button { flex: 1; border: 1px solid #444; background: #222; color: white; font-size: 24px; touch-action: manipulation; }
 				.obj { width: 50px; height: 80px; position: absolute; background-size: contain; background-repeat: no-repeat; transition: left 0.05s; }
 				#userCar { background-image: url('user.png'); bottom: 20px; left: 160px; z-index: 10; }
 				.enemy { background-image: url('enime.png'); }
 				.reward { background-image: url('reward.png'); filter: drop-shadow(0 0 10px yellow); }
+
+				/* +1 এর স্টাইল */
+				.plusOne { position: absolute; color: #2ecc71; font-size: 24px; font-weight: bold; pointer-events: none; z-index: 20; }
+				@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+
 				#gameOverPopup, #startScreen { display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); flex-direction: column; justify-content: center; align-items: center; z-index: 100; color: white; }
 				.btn { padding: 15px 30px; background: #e74c3c; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 18px; }
 				#scoreBoard { color: white; text-align: center; padding: 10px; font-size: 20px; font-weight: bold; background: #000; }
@@ -56,24 +61,21 @@
             btn.addEventListener('touchend', () => clearInterval(moveInterval));
             btn.onmousedown = () => moveInterval = setInterval(() => moveUserCar(dir), 30);
             btn.onmouseup = () => clearInterval(moveInterval);
+            btn.onmouseleave = () => clearInterval(moveInterval);
         }
-
         setupButton('leftBtn', 'left');
         setupButton('rightBtn', 'right');
 
         document.getElementById('startBtn').addEventListener('click', () => {
             document.getElementById('startScreen').style.display = 'none';
             gameActive = true;
-            // Enemy লুপ
             setInterval(() => { if(gameActive) spawnObject('enemy'); }, 1000);
-            // Reward লুপ
             setInterval(() => { if(gameActive) spawnObject('reward'); }, 2500);
         });
 
         function spawnObject(type) {
             let el = document.createElement('div');
             el.className = 'obj ' + type;
-            
             let randomLeft, isOverlapping, attempts = 0;
             do {
                 isOverlapping = false;
@@ -86,18 +88,38 @@
 
             el.style.left = randomLeft + 'px';
             el.style.top = '-80px';
-            gameArea.appendChild(el);
+            gameArea.appendChild(el);        
             
             let move = setInterval(() => {
                 if(!gameActive) { clearInterval(move); el.remove(); return; }
                 let top = parseInt(el.style.top);
-                el.style.top = (top + speed) + 'px';
-                
+                el.style.top = (top + speed) + 'px';            
                 let uR = userCar.getBoundingClientRect();
                 let eR = el.getBoundingClientRect();
-                if (eR.bottom > uR.top && eR.top < uR.bottom && eR.right > uR.left && eR.left < uR.right) {
-                    if(type === 'enemy') { gameActive = false; document.getElementById('gameOverPopup').style.display = 'flex'; clearInterval(move); }
-                    else { score++; document.getElementById('score').innerText = score; el.remove(); clearInterval(move); }
+
+                // কলিশন লজিক (১৫ পিক্সেল বাফার)
+                if (eR.bottom > uR.top + 15 && eR.top < uR.bottom - 15 && eR.right > uR.left + 15 && eR.left < uR.right - 15) {
+                    if(type === 'enemy') { 
+                        gameActive = false; 
+                        document.getElementById('gameOverPopup').style.display = 'flex'; 
+                        clearInterval(move); 
+                    } else { 
+                        score++; 
+                        document.getElementById('score').innerText = score; 
+                        
+                        // +1 এনিমেশন
+                        let plus = document.createElement('div');
+                        plus.className = "plusOne";
+                        plus.innerText = "+1";
+                        plus.style.left = el.style.left;
+                        plus.style.top = el.style.top;
+                        plus.style.animation = "floatUp 1s ease-out forwards";
+                        gameArea.appendChild(plus);
+                        setTimeout(() => plus.remove(), 1000);
+
+                        el.remove(); 
+                        clearInterval(move); 
+                    }
                 }
                 if(top > 700) { el.remove(); clearInterval(move); }
             }, 20);
