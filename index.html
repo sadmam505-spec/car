@@ -6,15 +6,21 @@
 			<style>
 				body { margin: 0; background: #333; display: flex; justify-content: center; height: 100vh; overflow: hidden; touch-action: none; }
 				#gameContainer { width: 100%; max-width: 375px; height: 100vh; display: flex; flex-direction: column; background: #444; position: relative; border: 2px solid #000; }
+
 				#gameArea { flex: 1; position: relative; overflow: hidden; background: #333; }
+
+				/* রোড এনিমেশন ফিরিয়ে আনা হলো */
+				.road-line { position: absolute; width: 8px; height: 80px; background: white; left: 50%; margin-left: -5px; animation: moveLines .8s linear infinite; }
+				@keyframes moveLines { from { top: -100px; } to { top: 100%; } }
+
 				.controls { height: 70px; display: flex; background: #000; z-index: 50; }
 				.controls button { flex: 1; border: 1px solid #444; background: #222; color: white; font-size: 24px; touch-action: manipulation; }
+
 				.obj { width: 50px; height: 80px; position: absolute; background-size: contain; background-repeat: no-repeat; transition: left 0.05s; }
 				#userCar { background-image: url('user.png'); bottom: 20px; left: 160px; z-index: 10; }
 				.enemy { background-image: url('enime.png'); }
 				.reward { background-image: url('reward.png'); filter: drop-shadow(0 0 10px yellow); }
 
-				/* +1 এর স্টাইল */
 				.plusOne { position: absolute; color: #2ecc71; font-size: 24px; font-weight: bold; pointer-events: none; z-index: 20; }
 				@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
 
@@ -29,7 +35,11 @@
 				Score: <span id="score">0</span>
 			</div>
 			<div id="gameArea">
+				<div class="road-line" style="top:0; left:25%;"></div>
+				<div class="road-line" style="top:250px; left:75%;"></div>
+
 				<div id="userCar" class="obj"></div>
+
 				<div id="startScreen">
 					<h2>READY?</h2>
 					<button class="btn" id="startBtn" style="background: #2ecc71;">START GAME</button>
@@ -55,13 +65,13 @@
             userCar.style.left = carX + 'px';
         }
 
+        // টাচ কন্ট্রোল ফিক্স: শুধুমাত্র বাটনে ক্লিক করলেই মুভ করবে, গেম এরিয়ায় টাচ করলে না
         function setupButton(btnId, dir) {
             const btn = document.getElementById(btnId);
             btn.addEventListener('touchstart', (e) => { e.preventDefault(); moveInterval = setInterval(() => moveUserCar(dir), 30); });
             btn.addEventListener('touchend', () => clearInterval(moveInterval));
             btn.onmousedown = () => moveInterval = setInterval(() => moveUserCar(dir), 30);
             btn.onmouseup = () => clearInterval(moveInterval);
-            btn.onmouseleave = () => clearInterval(moveInterval);
         }
         setupButton('leftBtn', 'left');
         setupButton('rightBtn', 'right');
@@ -81,7 +91,7 @@
                 isOverlapping = false;
                 randomLeft = Math.floor(Math.random() * 300);
                 document.querySelectorAll('.obj').forEach(obj => {
-                    if (Math.abs(parseInt(obj.style.left) - randomLeft) < 70 && parseInt(obj.style.top) < 150) isOverlapping = true;
+                    if (obj !== el && Math.abs(parseInt(obj.style.left) - randomLeft) < 70 && parseInt(obj.style.top) < 150) isOverlapping = true;
                 });
                 attempts++;
             } while (isOverlapping && attempts < 10);
@@ -97,7 +107,6 @@
                 let uR = userCar.getBoundingClientRect();
                 let eR = el.getBoundingClientRect();
 
-                // কলিশন লজিক (১৫ পিক্সেল বাফার)
                 if (eR.bottom > uR.top + 15 && eR.top < uR.bottom - 15 && eR.right > uR.left + 15 && eR.left < uR.right - 15) {
                     if(type === 'enemy') { 
                         gameActive = false; 
@@ -107,7 +116,6 @@
                         score++; 
                         document.getElementById('score').innerText = score; 
                         
-                        // +1 এনিমেশন
                         let plus = document.createElement('div');
                         plus.className = "plusOne";
                         plus.innerText = "+1";
