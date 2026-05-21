@@ -27,9 +27,9 @@
 					.reward-btn:active { transform: scale(0.95); }
 
 					/* Game Area */
-					#gameArea { flex: 0.9; position: relative; overflow: hidden; background: #281F1F; touch-action: none; }
-					#liveScore { position: absolute; top: 10px; left: 10px; color: white; font-size: 18px; font-weight: bold; z-index: 10; }
-					.road-line { position: absolute; width: 6px; height: 58px; background: rgba(255,255,255,0.3); left: 50%; animation: moveLines 1s linear infinite; }
+					#gameArea { flex: 0.95; position: relative; overflow: hidden; background: #281F1F; touch-action: none; }
+					#liveScore { position: absolute; top: 10px; left: 15px; color: white; font-size: 18px; font-weight: bold; z-index: 10; }
+					.road-line { position: absolute; width: 6px; height: 55px; background: rgba(255,255,255,0.3); left: 50%; animation: moveLines 1s linear infinite; }
 					@keyframes moveLines { from { top: -100px; } to { top: 100%; } }
 
 					.obj { width: 50px; height: 80px; position: absolute; background-size: contain; background-repeat: no-repeat; transition: left 0.05s; }
@@ -41,7 +41,7 @@
 					@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
 
 					/* Controls */
-					.controls { height: 100px; display: flex; background: #000; padding-bottom: env(safe-area-inset-bottom); padding-top: 10px; }
+					.controls { height: 60px; display: flex; background: #000; padding-bottom: env(safe-area-inset-bottom); padding-top: 10px; }
 					.controls button { flex: 1; background: #222; border: 1px solid #444; color: white; font-size: 30px; }
 					.controls button:active { background: #444; }
 
