@@ -202,6 +202,29 @@
 					to { opacity: 1; }
 					}
 
+					.home-icon-btn {
+					background: rgba(255, 255, 255, 0.1); /* ব্যাকগ্রাউন্ড একটু উজ্জ্বল করলাম */
+					border: 1.5px solid rgba(255, 255, 255, 0.2); /* বর্ডার একটু মোটা করলাম যাতে স্পষ্টভাবে বোঝা যায় */
+					color: #ffffff; /* একদম স্পষ্ট দেখার জন্য সাদা দিলাম, প্রয়োজনে rgba(255,255,255,0.9) দিতে পারেন */
+					width: 38px;
+					height: 38px;
+					border-radius: 50%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+					transition: all 0.2s;
+					font-size: 16px;
+					box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* একটু শ্যাডো দিলাম যেন ব্যাকগ্রাউন্ড থেকে আলাদা মনে হয় */
+					}
+
+					.home-icon-btn:active {
+					transform: scale(0.9);
+					background: rgba(74, 222, 128, 0.3);
+					color: #4ade80;
+					border-color: #4ade80;
+					}
+
 				</style>
 
 
@@ -209,7 +232,12 @@
 	<body>
 		<div id="gameContainer">
 			<div id="header">
-				<div style="cursor:pointer">🏠</div>
+				<div class="home-icon-btn" onclick="goToDashboard()">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+						<polyline points="9 22 9 12 15 12 15 22"></polyline>
+					</svg>
+				</div>
 				<div class="bal-section">
 					Balance: <span id="mainBalance">0</span>
 				</div>
@@ -364,6 +392,20 @@
         if(parseInt(el.style.top) > 700) { el.remove(); clearInterval(move); }
     }, 20);
 }
+
+		// ড্যাশবোর্ডে যাওয়ার ফাংশন
+		function goToDashboard() {
+		window.location.href = "https://dashboard.gritorax.com";
+		}
+
+		// ফোনের ব্যাক বাটন চাপলে ড্যাশবোর্ডে নিয়ে যাবে
+		history.pushState(null, null, window.location.href);
+		window.addEventListener('popstate', function(event) {
+		window.location.href = "https://dashboard.gritorax.com";
+		});
+	
+		
+		
 		</script>
 	</body>
 </html>
